@@ -40,21 +40,32 @@ export const getAllServices = async (
     const skip = (Number(page) - 1) * Number(limit);
 
     const [services, total] = await Promise.all([
-      prisma.service.findMany({
-        skip,
-        take: Number(limit),
-        orderBy: { [sortBy]: order },
-        include: { _count: { select: { serviceDetails: true } } },
-      }),
-      prisma.service.count(),
-    ]);
+    prisma.service.findMany({
+      skip,
+      take: Number(limit),
+      orderBy: { [sortBy]: order },
+      include: {
+        _count: { select: { serviceDetails: true } },
+      },
+    }),
+    prisma.service.count(),
+  ]);
 
-    return res.status(200).json({
-      total,
-      page: Number(page),
-      limit: Number(limit),
-      data: services,
-    });
+  const data = services.map((s) => ({
+    id: s.id,
+    name: s.name,
+    description: s.description,
+    createdAt: s.createdAt,
+    modifiedAt: s.modifiedAt,
+    serviceDetailsCount: s._count.serviceDetails,
+  }));
+
+  return res.status(200).json({
+    total,
+    page: Number(page),
+    limit: Number(limit),
+    data,
+  });
   } catch (err) {
     return res.status(500).json({ message: "Failed to fetch services" });
   }
@@ -63,16 +74,18 @@ export const getAllServices = async (
 // ==========================
 // GET BY ID
 // ==========================
-export const getServiceById = async (
-  req: Request<{ id: string }>,
-  res: Response
-) => {
+export const getServiceById = async (req: Request<{ id: string }>,res: Response) => {
   try {
     const { id } = req.params;
-
     const service = await prisma.service.findUnique({
       where: { id },
-      include: { _count: { select: { serviceDetails: true } } },
+      include: {
+        _count: { select: { serviceDetails: true } },
+        serviceDetails: {
+          where: { isAvailable: true, serviceId: id },
+          orderBy: { createdAt: "desc" },
+        },
+      },
     });
 
     if (!service) {

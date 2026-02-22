@@ -4,6 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import authRouter from "./routes/auth"; // ensure default export
 import serviceRouter from "./routes/serviceRoute";
+import serviceDetailRouter from "./routes/serviceDetailsRoute";
 
 // ------------------- CONFIG -------------------
 console.log("🟢 APP LOADED");
@@ -35,6 +36,7 @@ app.use(morgan("dev"));
 // ------------------- ROUTES -------------------
 app.use("/api/auth", authRouter);
 app.use("/api/service",serviceRouter);
+app.use("/api/service-detail", serviceDetailRouter);
 
 // ------------------- ERROR HANDLING -------------------
 
