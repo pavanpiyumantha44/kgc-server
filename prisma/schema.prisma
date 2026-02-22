@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+
+
+// ------------------ Datasource & Generator ------------------
+generator client {
+  provider = "prisma-client-js"
+  // No output path needed; it will go to node_modules/@prisma/client
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ------------------ MODELS ------------------
+
+model User {
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  phone      String
+  password   String
+  createdAt  DateTime @default(now())
+  modifiedAt DateTime @updatedAt
+}
+
+model Client {
+  id          String    @id @default(cuid())
+  name        String
+  email       String    @unique
+  phone       String
+  isSrilankan Boolean?
+  createdAt   DateTime  @default(now())
+  modifiedAt  DateTime  @updatedAt
+  bookings    Booking[]
+}
+
+//model Organization {
+//  id          String    @id @default(cuid())
+//  name        String
+//  email       String
+//  phone       String
+//  address     String
+//  startingTime Int?     // stored as number of hours/minutes
+//  closingTime  Int?
+//  createdAt   DateTime  @default(now())
+//  modifiedAt  DateTime  @updatedAt
+//  services    Service[]
+//}
+
+model Service {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  serviceDetails ServiceDetail[]
+  createdAt   DateTime  @default(now())
+  modifiedAt  DateTime  @updatedAt
+}
+
+model ServiceDetail {
+  id             String   @id @default(cuid())
+  providedService String
+  description     String?
+  localCost       Float?
+  foreignCost     Float?
+  isAvailable     Boolean
+  serviceId       String
+  service         Service @relation(fields: [serviceId], references: [id])
+  bookings        Booking[]
+  createdAt       DateTime @default(now())
+  modifiedAt      DateTime @updatedAt
+}
+
+model Booking {
+  id                        String   @id @default(cuid())
+  startDttm                 DateTime
+  endDttm                   DateTime
+  isTennisEquipmentRequired Boolean?
+  isCoachingSessionRequired Boolean?
+  isFloodLightsRequired     Boolean?
+  totalCost                 Float?
+  clientId                  String
+  client                    Client @relation(fields: [clientId], references: [id])
+  serviceDetailId           String
+  serviceDetail             ServiceDetail @relation(fields: [serviceDetailId], references: [id])
+  createdAt                 DateTime @default(now())
+  modifiedAt                DateTime @updatedAt
+}
+
