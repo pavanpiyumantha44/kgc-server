@@ -16,6 +16,31 @@ async function seed(): Promise<void> {
       password: await encryptPassword("admin@123"),
     },
   });
+
+  await prisma.service.createMany({
+    data: [
+      {
+        name: "Tennis Courts",
+        description: "Premium tennis court facilities with professional lighting and maintained surfaces.",
+      },
+      {
+        name: "Table Tennis",
+        description: "Indoor table tennis with quality equipment and air-conditioned environment.",
+      },
+      {
+        name: "Snooker Table Booking",
+        description: "Professional snooker tables with premium cloth and lighting.",
+      },
+      {
+        name: "Coaching Sessions",
+        description: "Professional coaching for tennis, table tennis, and snooker.",
+      },
+      {
+        name: "Equipment Rental",
+        description: "High-quality equipment rental for tennis, table tennis, and snooker.",
+      }
+    ]
+  });
 }
 
 seed()
