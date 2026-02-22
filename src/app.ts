@@ -7,7 +7,8 @@ import serviceRouter from "./routes/serviceRoute";
 
 // ------------------- CONFIG -------------------
 console.log("🟢 APP LOADED");
-const APP_URL = process.env.APP_URL || "http://localhost:5173";
+const APP_URL = process.env.APP_URL
+//const APP_URL = "http://localhost:5173";
 
 const app: Application = express();
 
