@@ -38,7 +38,6 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
       });
     }
 
-    // Make sure payload matches JwtPayload
     const payload: JwtPayload = { id: account.id};
     const token = authService.generateToken(payload);
 

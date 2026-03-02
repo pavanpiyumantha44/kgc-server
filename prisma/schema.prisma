@@ -57,6 +57,7 @@ model Service {
   id          String    @id @default(cuid())
   name        String
   description String?
+  type        String?
   serviceDetails ServiceDetail[]
   createdAt   DateTime  @default(now())
   modifiedAt  DateTime  @updatedAt
@@ -83,12 +84,25 @@ model Booking {
   isTennisEquipmentRequired Boolean?
   isCoachingSessionRequired Boolean?
   isFloodLightsRequired     Boolean?
-  totalCost                 Float?
+  totalCost                 Decimal @db.Decimal(10,2)
   clientId                  String
   client                    Client @relation(fields: [clientId], references: [id])
   serviceDetailId           String
   serviceDetail             ServiceDetail @relation(fields: [serviceDetailId], references: [id])
+  bookingCharges            BookingCharge[]
   createdAt                 DateTime @default(now())
   modifiedAt                DateTime @updatedAt
 }
 
+model BookingCharge {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+
+  type      String
+  quantity  Int      @default(1)
+  unitPrice Decimal   @db.Decimal(10,2)
+  amount    Decimal   @db.Decimal(10,2)
+  createdAt           DateTime @default(now())
+  modifiedAt          DateTime @updatedAt
+}

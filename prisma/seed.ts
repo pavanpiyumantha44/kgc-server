@@ -11,6 +11,7 @@ const servicesData = [
   {
     name: "Tennis Courts",
     description: "Premium tennis court facilities with professional lighting and maintained surfaces.",
+    type: "sport",
     details: [
       {
         providedService: "Tennis Court 1",
@@ -38,6 +39,7 @@ const servicesData = [
   {
     name: "Table Tennis",
     description: "Indoor table tennis with quality equipment and air-conditioned environment.",
+    type: "sport",
     details: [
       {
         providedService: "Table 1",
@@ -58,6 +60,7 @@ const servicesData = [
   {
     name: "Snooker Table Booking",
     description: "Professional snooker tables with premium cloth and lighting.",
+    type: "sport",
     details: [
       {
         providedService: "Snooker Table 1",
@@ -85,6 +88,7 @@ const servicesData = [
   {
     name: "Coaching Sessions",
     description: "Professional coaching for tennis, table tennis, and snooker.",
+    type: "service",
     details: [
       {
         providedService: "Private Coaching",
@@ -98,12 +102,27 @@ const servicesData = [
   {
     name: "Equipment Rental",
     description: "High-quality equipment rental for tennis, table tennis, and snooker.",
+    type: "service",
     details: [
       {
         providedService: "Racket Rental",
         description: "2 Tennis Rackets & 3 Balls - Per Hour",
         localCost: 2000,
         foreignCost: 30,
+        isAvailable: true,
+      },
+    ],
+  },
+  {
+    name: "Flood Lights",
+    description: "Floodlight rental for evening play on tennis courts.",
+    type: "service",
+    details: [
+      {
+        providedService: "Flood Light Rental",
+        description: "Floodlight rental for an hour",
+        localCost: 1000,
+        foreignCost: 5,
         isAvailable: true,
       },
     ],
@@ -127,6 +146,7 @@ async function seed(): Promise<void> {
       data: {
         name: service.name,
         description: service.description,
+        type: service.type,
         serviceDetails: {
           create: service.details,
         },

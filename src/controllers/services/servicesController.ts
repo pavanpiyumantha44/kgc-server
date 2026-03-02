@@ -14,10 +14,10 @@ export const createService = async (
   res: Response
 ) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, type } = req.body;
 
     const service = await prisma.service.create({
-      data: { name, description },
+      data: { name, description, type },
     });
 
     return res.status(201).json(service);
@@ -40,37 +40,210 @@ export const getAllServices = async (
     const skip = (Number(page) - 1) * Number(limit);
 
     const [services, total] = await Promise.all([
-    prisma.service.findMany({
-      skip,
-      take: Number(limit),
-      orderBy: { [sortBy]: order },
-      include: {
-        _count: { select: { serviceDetails: true } },
-      },
-    }),
-    prisma.service.count(),
-  ]);
+      prisma.service.findMany({
+        skip,
+        take: Number(limit),
+        orderBy: { [sortBy]: order },
+        include: {
+          serviceDetails: {
+            select: {
+              id: true,
+              providedService: true,
+              description: true,
+              localCost: true,
+              foreignCost: true,
+              isAvailable: true,
+              createdAt: true,
+              modifiedAt: true,
+            },
+          },
+          _count: {
+            select: { serviceDetails: true },
+          },
+        },
+      }),
+      prisma.service.count(),
+    ]);
 
-  const data = services.map((s) => ({
-    id: s.id,
-    name: s.name,
-    description: s.description,
-    createdAt: s.createdAt,
-    modifiedAt: s.modifiedAt,
-    serviceDetailsCount: s._count.serviceDetails,
-  }));
+    const data = services.map((s) => ({
+      id: s.id,
+      name: s.name,
+      description: s.description,
+      type : s.type,
+      createdAt: s.createdAt,
+      modifiedAt: s.modifiedAt,
 
-  return res.status(200).json({
-    total,
-    page: Number(page),
-    limit: Number(limit),
-    data,
-  });
+      serviceDetailsCount: s._count.serviceDetails, // 👈 count kept
+
+      serviceDetails: s.serviceDetails.map((sd) => ({
+        id: sd.id,
+        name: sd.providedService,
+        description: sd.description,
+        localCost: sd.localCost,
+        foreignCost: sd.foreignCost,
+        isAvailable: sd.isAvailable,
+        createdAt: sd.createdAt,
+        modifiedAt: sd.modifiedAt,
+      })),
+    }));
+
+    return res.status(200).json({
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      data,
+    });
   } catch (err) {
     return res.status(500).json({ message: "Failed to fetch services" });
   }
 };
 
+// ==========================
+// GET Sports (No pagination, for dropdowns etc.)
+// ==========================
+export const getAllSports = async (
+  req: Request<{}, {}, {}, ListServicesQueryDTO>,
+  res: Response
+) => {
+  try {
+    const { page = 1, limit = 10, sortBy = "createdAt", order = "desc" } =
+      req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const [services, total] = await Promise.all([
+      prisma.service.findMany({
+        skip,
+        take: Number(limit),
+        orderBy: { [sortBy]: order },
+        where: { type: "sport" },
+        include: {
+          serviceDetails: {
+            select: {
+              id: true,
+              providedService: true,
+              description: true,
+              localCost: true,
+              foreignCost: true,
+              isAvailable: true,
+              createdAt: true,
+              modifiedAt: true,
+            },
+          },
+          _count: {
+            select: { serviceDetails: true },
+          },
+        },
+      }),
+      prisma.service.count(),
+    ]);
+
+    const data = services.map((s) => ({
+      id: s.id,
+      name: s.name,
+      description: s.description,
+      type : s.type,
+      createdAt: s.createdAt,
+      modifiedAt: s.modifiedAt,
+
+      serviceDetailsCount: s._count.serviceDetails, // 👈 count kept
+
+      serviceDetails: s.serviceDetails.map((sd) => ({
+        id: sd.id,
+        name: sd.providedService,
+        description: sd.description,
+        localCost: sd.localCost,
+        foreignCost: sd.foreignCost,
+        isAvailable: sd.isAvailable,
+        createdAt: sd.createdAt,
+        modifiedAt: sd.modifiedAt,
+      })),
+    }));
+
+    return res.status(200).json({
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      data,
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to fetch services" });
+  }
+};
+
+
+// ==========================
+// GET Providing Services (No pagination, for dropdowns etc.)
+// ==========================
+export const getProvidingServices = async (
+  req: Request<{}, {}, {}, ListServicesQueryDTO>,
+  res: Response
+) => {
+  try {
+    const { page = 1, limit = 10, sortBy = "createdAt", order = "desc" } =
+      req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const [services, total] = await Promise.all([
+      prisma.service.findMany({
+        skip,
+        take: Number(limit),
+        orderBy: { [sortBy]: order },
+        where: { type: "service" },
+        include: {
+          serviceDetails: {
+            select: {
+              id: true,
+              providedService: true,
+              description: true,
+              localCost: true,
+              foreignCost: true,
+              isAvailable: true,
+              createdAt: true,
+              modifiedAt: true,
+            },
+          },
+          _count: {
+            select: { serviceDetails: true },
+          },
+        },
+      }),
+      prisma.service.count(),
+    ]);
+
+    const data = services.map((s) => ({
+      id: s.id,
+      name: s.name,
+      description: s.description,
+      type : s.type,
+      createdAt: s.createdAt,
+      modifiedAt: s.modifiedAt,
+
+      serviceDetailsCount: s._count.serviceDetails, // 👈 count kept
+
+      serviceDetails: s.serviceDetails.map((sd) => ({
+        id: sd.id,
+        name: sd.providedService,
+        description: sd.description,
+        localCost: sd.localCost,
+        foreignCost: sd.foreignCost,
+        isAvailable: sd.isAvailable,
+        createdAt: sd.createdAt,
+        modifiedAt: sd.modifiedAt,
+      })),
+    }));
+
+    return res.status(200).json({
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      data,
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to fetch services" });
+  }
+};
 // ==========================
 // GET BY ID
 // ==========================
